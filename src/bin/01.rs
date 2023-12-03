@@ -1,5 +1,5 @@
 advent_of_code::solution!(1);
-use itertools::{self, Itertools};
+
 
 fn str_to_int(num: String) -> u32 {
     let mut resnum = num.to_owned();
