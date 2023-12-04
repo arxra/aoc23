@@ -1,11 +1,10 @@
-use std::collections::{hash_set, HashSet};
+use std::collections::HashSet;
 
-use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
     character::{
         self,
-        complete::{alpha0, digit0, multispace0, space0, space1},
+        complete::{multispace0, space1},
     },
     multi::separated_list0,
     IResult,
