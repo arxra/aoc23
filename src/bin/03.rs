@@ -45,7 +45,6 @@ fn get_engine_numbers(input: &str) -> Vec<u32> {
                     current_is_adjecent = false;
                 } else if !currrent_string.is_empty() {
                     // Clear variables for new enginge part
-                    dbg!(&currrent_string, "not part of engine!");
                     currrent_string.clear();
                 }
                 // else we were not parsing a number and have nothing to do before new row
@@ -121,7 +120,6 @@ fn get_gears(input: &str) -> u32 {
 }
 pub fn part_one(input: &str) -> Option<u32> {
     let engine_numbers = get_engine_numbers(input);
-    dbg!(&engine_numbers);
     Some(engine_numbers.iter().sum())
 }
 
