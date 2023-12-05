@@ -5,6 +5,7 @@ use nom::{
     sequence::tuple,
     IResult,
 };
+use rayon::prelude::*;
 
 advent_of_code::solution!(5);
 
@@ -32,22 +33,23 @@ fn parse_game(input: &str) -> IResult<&str, Game> {
 }
 
 fn solve(game: Game) -> Option<u64> {
-    let mut ends = Vec::new();
-    let mut current;
-    for s in game.seeds {
-        current = s;
-        'b: for round in game.rounds.iter() {
-            for (dest, src, dist) in round {
-                // dbg!((src, dest, dist));
-                if current >= *src && current < *src + *dist {
-                    current = current + dest - src;
-                    continue 'b;
+    let min = game
+        .seeds
+        .into_par_iter()
+        .map(|mut current| {
+            'b: for round in game.rounds.iter() {
+                for (dest, src, dist) in round {
+                    if current >= *src && current < *src + *dist {
+                        current = current + dest - src;
+                        continue 'b;
+                    }
                 }
             }
-        }
-        ends.push(current);
-    }
-    Some(ends.iter().min().unwrap().to_owned())
+            current
+        })
+        .min()
+        .unwrap();
+    Some(min)
 }
 
 pub fn part_one(input: &str) -> Option<u64> {
