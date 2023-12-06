@@ -1,11 +1,7 @@
 advent_of_code::solution!(1);
 
-
 fn str_to_int(num: String) -> u32 {
-    let mut resnum = num.to_owned();
-    if num.len() < 2 {
-        resnum.insert_str(1, &num);
-    }
+    let resnum = num.to_owned();
     let num = format!(
         "{}{}",
         resnum.chars().next().unwrap(),
