@@ -1,12 +1,14 @@
 use std::collections::HashSet;
 
 use nom::{
-    bytes::complete::tag,
+    bytes::complete::{tag, take_till, take_until},
     character::{
         self,
-        complete::{multispace0, space1},
+        complete::{alphanumeric0, multispace0, space1},
     },
-    multi::separated_list0,
+    error::{context, ParseError, VerboseError},
+    multi::{many_till, separated_list0, separated_list1},
+    sequence::tuple,
     IResult,
 };
 
@@ -44,14 +46,39 @@ fn parse_cvard(input: &str) -> IResult<&str, Card> {
     ))
 }
 
+fn card_parser(input: &str) -> IResult<&str, Card> {
+    let (input, (_, winners, _, numbers)) = tuple((
+        take_until(": "),
+        separated_list1(space1, character::complete::u32),
+        separated_list1(tag("|"), space1),
+        separated_list1(space1, character::complete::u32),
+    ))(input)?;
+    Ok((
+        input,
+        Card {
+            winners,
+            numbers,
+            amount: 1,
+        },
+    ))
+}
+
 fn parse_input(input: &str) -> Vec<Card> {
     input
         .lines()
-        .map(parse_cvard)
-        .map(|a| a.unwrap())
+        .map(|a: &str| a)
+        .flat_map(card_parser)
         .map(|(_, c)| c)
-        .collect()
+        .collect::<Vec<Card>>()
 }
+// fn parse_input(input: &str) -> Vec<Card> {
+//     input
+//         .lines()
+//         .map(parse_cvard)
+//         .map(|a| a.unwrap())
+//         .map(|(_, c)| c)
+//         .collect()
+// }
 
 fn set(v: &[u32]) -> HashSet<u32> {
     HashSet::from_iter(v.iter().cloned())
