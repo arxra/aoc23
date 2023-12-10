@@ -1,13 +1,9 @@
 use std::collections::HashSet;
 
 use nom::{
-    bytes::complete::{tag, take_till, take_until},
-    character::{
-        self,
-        complete::{alphanumeric0, multispace0, space1},
-    },
-    error::{context, ParseError, VerboseError},
-    multi::{many_till, separated_list0, separated_list1},
+    bytes::complete::tag,
+    character::complete::{space1, u32},
+    multi::separated_list1,
     sequence::tuple,
     IResult,
 };
@@ -25,33 +21,13 @@ fn winners(c: &Card) -> u32 {
     set(&c.winners).intersection(&set(&c.numbers)).count() as u32
 }
 
-fn parse_cvard(input: &str) -> IResult<&str, Card> {
-    let (input, _) = tag("Card")(input)?;
-    let (input, _) = space1(input)?;
-    let (input, _) = character::complete::u32(input)?;
-    let (input, _) = tag(":")(input)?;
-    let (input, _) = space1(input)?;
-    let (input, winners) = separated_list0(space1, character::complete::u32)(input)?;
-    let (input, _) = tag(" |")(input)?;
-    let (input, _) = multispace0(input)?;
-    let (input, numbers) = separated_list0(space1, character::complete::u32)(input)?;
-
-    Ok((
-        input,
-        Card {
-            winners,
-            numbers,
-            amount: 1,
-        },
-    ))
-}
-
 fn card_parser(input: &str) -> IResult<&str, Card> {
-    let (input, (_, winners, _, numbers)) = tuple((
-        take_until(": "),
-        separated_list1(space1, character::complete::u32),
-        separated_list1(tag("|"), space1),
-        separated_list1(space1, character::complete::u32),
+    let (input, _) = tuple((tag("Card"), space1, u32, tag(":"), space1))(input)?;
+    dbg!(input);
+    let (input, (winners, _, numbers)) = tuple((
+        separated_list1(space1, u32),
+        tuple((space1, tag("|"), space1)),
+        separated_list1(space1, u32),
     ))(input)?;
     Ok((
         input,
@@ -66,19 +42,10 @@ fn card_parser(input: &str) -> IResult<&str, Card> {
 fn parse_input(input: &str) -> Vec<Card> {
     input
         .lines()
-        .map(|a: &str| a)
         .flat_map(card_parser)
         .map(|(_, c)| c)
         .collect::<Vec<Card>>()
 }
-// fn parse_input(input: &str) -> Vec<Card> {
-//     input
-//         .lines()
-//         .map(parse_cvard)
-//         .map(|a| a.unwrap())
-//         .map(|(_, c)| c)
-//         .collect()
-// }
 
 fn set(v: &[u32]) -> HashSet<u32> {
     HashSet::from_iter(v.iter().cloned())
@@ -86,6 +53,7 @@ fn set(v: &[u32]) -> HashSet<u32> {
 
 pub fn part_one(input: &str) -> Option<u32> {
     let cards = parse_input(input);
+    dbg!(&cards);
     let res = cards
         .iter()
         .map(winners)
