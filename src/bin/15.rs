@@ -1,15 +1,6 @@
 #![feature(ascii_char)]
-use itertools::Itertools;
 
 advent_of_code::solution!(15);
-
-fn parse(input: &str) -> Vec<Vec<std::ascii::Char>> {
-    input
-        .split(',')
-        .map(|l| l.chars().flat_map(|c| c.as_ascii()).collect_vec())
-        .collect_vec()
-}
-
 pub fn part_one(input: &str) -> Option<u32> {
     input
         .split(',')
